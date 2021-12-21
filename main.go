@@ -25,6 +25,16 @@ func main() {
 				Usage:    "Filecoin miner. Such as: f01000",
 				Required: true,
 			},
+			&cli.StringFlag{
+				Name:     "cid",
+				Usage:    "PreCommitCID~~",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "ticket",
+				Usage:    "ticket~~",
+				Required: true,
+			},
 			&cli.IntSliceFlag{
 				Name:     "sector",
 				Usage:    "Sector number to be recovered. Such as: --sector=0 --sector=1 ... ",
@@ -53,6 +63,9 @@ func main() {
 			ctx, cancel := context.WithCancel(ctx)
 			defer cancel()
 
+			recovery.Ss = cctx.String("cid") //cid的string
+			tip := cctx.String("ticket")
+			recovery.Rns = []byte(tip) //扇区的ticket
 			maddr, err := address.NewFromString(cctx.String("miner"))
 			if err != nil {
 				return xerrors.Errorf("Getting NewFromString err:", err)
@@ -62,13 +75,13 @@ func main() {
 				return xerrors.Errorf("Getting IDFromAddress err:", err)
 			}
 
-			fullapi, closer, err := cliutil.GetFullNodeAPI(cctx)
-			if err != nil {
-				return xerrors.Errorf("Getting FullNodeAPI err:", err)
-			}
-			defer closer()
+			//fullapi, closer, err := cliutil.GetFullNodeAPI(cctx)
+			//if err != nil {
+			//	return xerrors.Errorf("Getting FullNodeAPI err:", err)
+			//}
+			//defer closer()
 
-			if err = recovery.RecoverSealedFile(ctx, fullapi, maddr, actorID, cctx.IntSlice("sector"), cctx.Uint("parallel"), cctx.String("sealing-result"), cctx.String("sealing-temp")); err != nil {
+			if err = recovery.RecoverSealedFile(ctx, maddr, actorID, cctx.IntSlice("sector"), cctx.Uint("parallel"), cctx.String("sealing-result"), cctx.String("sealing-temp")); err != nil {
 				return err
 			}
 			log.Info("Complete recovery sealed!")

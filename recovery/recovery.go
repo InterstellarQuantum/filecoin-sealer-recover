@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
-	"github.com/filecoin-project/lotus/api/v0api"
-	"github.com/filecoin-project/lotus/chain/types"
 	"github.com/filecoin-project/lotus/extern/sector-storage/ffiwrapper"
 	"github.com/filecoin-project/lotus/extern/sector-storage/ffiwrapper/basicfs"
 	sealing "github.com/filecoin-project/lotus/extern/storage-sealing"
@@ -21,12 +19,15 @@ import (
 	"time"
 )
 
-func RecoverSealedFile(ctx context.Context, fullNodeApi v0api.FullNode, maddr address.Address, actorID uint64, sectors []int, parallel uint, sealingResult string, sealingTemp string) error {
+var Ss string
+var Rns abi.Randomness
+
+func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint64, sectors []int, parallel uint, sealingResult string, sealingTemp string) error {
 	// Sector size
-	mi, err := fullNodeApi.StateMinerInfo(ctx, maddr, types.EmptyTSK)
-	if err != nil {
-		return xerrors.Errorf("Getting StateMinerInfo err:", err)
-	}
+	//mi, err := fullNodeApi.StateMinerInfo(ctx, maddr, types.EmptyTSK)
+	//if err != nil {
+	//	return xerrors.Errorf("Getting StateMinerInfo err:", err)
+	//}
 
 	wg := &sync.WaitGroup{}
 	limiter := make(chan bool, parallel)
@@ -49,15 +50,15 @@ func RecoverSealedFile(ctx context.Context, fullNodeApi v0api.FullNode, maddr ad
 			}
 			p1LastTaskTime = time.Now()
 
-			ts, sectorPreCommitOnChainInfo, err := GetSectorCommitInfoOnChain(ctx, fullNodeApi, maddr, abi.SectorNumber(sector))
-			if err != nil {
-				log.Errorf("Getting sector (%d) precommit info error: %v ", sector, err)
-			}
-
-			ticket, err := GetSectorTicketOnChain(ctx, fullNodeApi, maddr, ts, sectorPreCommitOnChainInfo)
-			if err != nil {
-				log.Errorf("Getting sector (%d) ticket error: %v ", sector, err)
-			}
+			//ts, sectorPreCommitOnChainInfo, err := GetSectorCommitInfoOnChain(ctx,  maddr, abi.SectorNumber(sector))
+			//if err != nil {
+			//	log.Errorf("Getting sector (%d) precommit info error: %v ", sector, err)
+			//}
+			//
+			//ticket, err := GetSectorTicketOnChain(ctx,  maddr, ts, sectorPreCommitOnChainInfo)
+			//if err != nil {
+			//	log.Errorf("Getting sector (%d) ticket error: %v ", sector, err)
+			//}
 
 			sdir, err := homedir.Expand(sealingTemp)
 			if err != nil {
@@ -83,13 +84,14 @@ func RecoverSealedFile(ctx context.Context, fullNodeApi v0api.FullNode, maddr ad
 					Miner:  abi.ActorID(actorID),
 					Number: abi.SectorNumber(sector),
 				},
-				ProofType: sectorPreCommitOnChainInfo.Info.SealProof,
+				ProofType: abi.RegisteredSealProof(8),
 			}
 
-			log.Infof("Start recover sector(%d,%d), registeredSealProof: %d, ticket: %x", actorID, sector, sectorPreCommitOnChainInfo.Info.SealProof, ticket)
+			var se uint64 = 1073741824 * 32
+			log.Infof("Start recover sector(%d,%d), registeredSealProof: %d, ticket: %x", actorID, sector, abi.RegisteredSealProof(8), Rns)
 
 			log.Infof("Start running AP, sector (%d)", sector)
-			pi, err := sb.AddPiece(context.TODO(), sid, nil, abi.PaddedPieceSize(mi.SectorSize).Unpadded(), sealing.NewNullReader(abi.UnpaddedPieceSize(mi.SectorSize)))
+			pi, err := sb.AddPiece(context.TODO(), sid, nil, abi.PaddedPieceSize(abi.SectorSize(se)).Unpadded(), sealing.NewNullReader(abi.UnpaddedPieceSize(abi.SectorSize(se))))
 			if err != nil {
 				log.Errorf("Sector (%d) ,running AP  error: %v", sector, err)
 			}
@@ -98,13 +100,13 @@ func RecoverSealedFile(ctx context.Context, fullNodeApi v0api.FullNode, maddr ad
 			log.Infof("Complete AP, sector (%d)", sector)
 
 			log.Infof("Start running PreCommit1, sector (%d)", sector)
-			pc1o, err := sb.SealPreCommit1(context.TODO(), sid, abi.SealRandomness(ticket), []abi.PieceInfo{pi})
+			pc1o, err := sb.SealPreCommit1(context.TODO(), sid, abi.SealRandomness(Rns), []abi.PieceInfo{pi})
 			if err != nil {
 				log.Errorf("Sector (%d) , running PreCommit1  error: %v", sector, err)
 			}
 			log.Infof("Complete PreCommit1, sector (%d)", sector)
 
-			err = sealPreCommit2AndCheck(ctx, sb, sid, pc1o, sectorPreCommitOnChainInfo.Info.SealedCID.String())
+			err = sealPreCommit2AndCheck(ctx, sb, sid, pc1o, Ss)
 			if err != nil {
 				log.Errorf("Sector (%d) , running PreCommit2  error: %v", sector, err)
 			}
@@ -167,7 +169,7 @@ func MoveStorage(ctx context.Context, sector storage.SectorRef, tempDir string, 
 	if err := move(tempDir+"/cache/"+sectorNum, sealingResult+"/cache/"+sectorNum); err != nil {
 		// return xerrors.Errorf("SectorID: %d, move cache error：%s", sector.ID, err)
 		// change the output to warn info since this will no impact the result
-		log.Warn("can move sector to your sealingResult, reason: ",err)
+		log.Warn("can move sector to your sealingResult, reason: ", err)
 		return nil
 	}
 	if err := move(tempDir+"/sealed/"+sectorNum, sealingResult+"/sealed/"+sectorNum); err != nil {
