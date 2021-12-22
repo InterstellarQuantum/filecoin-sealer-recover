@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
+	"fmt"
 	"github.com/filecoin-project/go-address"
 	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/froghub-io/filecoin-sealer-recover/recovery"
@@ -65,7 +67,11 @@ func main() {
 
 			recovery.Ss = cctx.String("cid") //cid的string
 			tip := cctx.String("ticket")
-			recovery.Rns = []byte(tip) //扇区的ticket
+			bytes, e := hex.DecodeString(tip) //扇区的ticket
+			if e != nil {
+				fmt.Printf("输入的ticket错误, %s", e)
+			}
+			recovery.Rns = bytes
 			maddr, err := address.NewFromString(cctx.String("miner"))
 			if err != nil {
 				return xerrors.Errorf("Getting NewFromString err:", err)
