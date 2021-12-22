@@ -70,6 +70,7 @@ func main() {
 			bytes, e := hex.DecodeString(tip) //扇区的ticket
 			if e != nil {
 				fmt.Printf("输入的ticket错误, %s", e)
+				return nil
 			}
 			recovery.Rns = bytes
 			maddr, err := address.NewFromString(cctx.String("miner"))
