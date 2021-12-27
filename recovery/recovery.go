@@ -22,7 +22,7 @@ import (
 var Ss string
 var Rns abi.Randomness
 
-func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint64, sectors []int, parallel uint, sealingResult string, sealingTemp string, RegisteredSealProof int64) error {
+func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint64, sectors []int, parallel uint, sealingResult string, sealingTemp string, RegisteredSealProof int64, size uint64) error {
 	// Sector size
 	//mi, err := fullNodeApi.StateMinerInfo(ctx, maddr, types.EmptyTSK)
 	//if err != nil {
@@ -87,7 +87,7 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 				ProofType: abi.RegisteredSealProof(RegisteredSealProof),
 			}
 
-			var se uint64 = 1073741824 * 32
+			var se = 1073741824 * size
 			log.Infof("Start recover sector(%d,%d), registeredSealProof: %d, ticket: %x", actorID, sector, abi.RegisteredSealProof(8), Rns)
 
 			log.Infof("Start running AP, sector (%d)", sector)

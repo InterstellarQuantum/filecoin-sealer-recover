@@ -62,6 +62,11 @@ func main() {
 				Value: 8,
 				Usage: "扇区版本号默认是v1_1版本32G,v1_1版本64G是9,v1版本32G是3,64G是4,如果不是v1_1版本32G扇区,需要手动设置该值",
 			},
+			&cli.Uint64Flag{
+				Name:  "size",
+				Value: 32,
+				Usage: "扇区大小,默认32",
+			},
 		},
 		Action: func(cctx *cli.Context) error {
 			log.Info("Start sealer recovery!")
@@ -91,7 +96,7 @@ func main() {
 			//}
 			//defer closer()
 
-			if err = recovery.RecoverSealedFile(ctx, maddr, actorID, cctx.IntSlice("sector"), cctx.Uint("parallel"), cctx.String("sealing-result"), cctx.String("sealing-temp"), cctx.Int64("rsp")); err != nil {
+			if err = recovery.RecoverSealedFile(ctx, maddr, actorID, cctx.IntSlice("sector"), cctx.Uint("parallel"), cctx.String("sealing-result"), cctx.String("sealing-temp"), cctx.Int64("rsp"), cctx.Uint64("size")); err != nil {
 				return err
 			}
 			log.Info("Complete recovery sealed!")

@@ -1,4 +1,6 @@
 中文请点击[这里](./README_CN.md)
+# 取消了nodeapi 
+
 # Sector Repair
 
 Filecoin may face sector data loss during sealing or mining, and then destroy PreCommit pre-pledged FILs, or terminate sectors with a maximum loss of 90 days of sector reward. Sector repair can repair the lost files to reduce or avoid the loss.
