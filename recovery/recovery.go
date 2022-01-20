@@ -114,11 +114,11 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 			if err != nil {
 				log.Errorf("Sector (%d) , running PreCommit2  error: %v", sector, err)
 			}
-
-			err = MoveStorage(ctx, sid, tempDir, sealingResult)
-			if err != nil {
-				log.Errorf("Sector (%d) , running MoveStorage  error: %v", sector, err)
-			}
+			//
+			//err = MoveStorage(ctx, sid, tempDir, sealingResult)
+			//if err != nil {
+			//	log.Errorf("Sector (%d) , running MoveStorage  error: %v", sector, err)
+			//}
 
 			log.Infof("Complete sector (%d)", sector)
 		}(int64(sector))
