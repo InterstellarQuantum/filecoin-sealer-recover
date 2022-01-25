@@ -1,6 +1,14 @@
 中文请点击[这里](./README_CN.md)
 # 取消了nodeapi 
 
+采用了手动输入ticket的模式,使用命令
+
+```
+lotus-miner sectors 扇区号
+```
+
+获取扇区的ticket和cid
+
 # Sector Repair
 
 Filecoin may face sector data loss during sealing or mining, and then destroy PreCommit pre-pledged FILs, or terminate sectors with a maximum loss of 90 days of sector reward. Sector repair can repair the lost files to reduce or avoid the loss.
