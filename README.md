@@ -4,7 +4,7 @@
 采用了手动输入ticket的模式,使用命令
 
 ```
-lotus-miner sectors 扇区号
+lotus-miner sectors status 扇区号
 ```
 
 获取扇区的ticket和cid
