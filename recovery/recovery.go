@@ -95,8 +95,6 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 			if err != nil {
 				log.Errorf("Sector (%d) ,running AP  error: %v", sector, err)
 			}
-			fmt.Println("--------------------------------")
-			fmt.Println(pi)
 			var pieces []abi.PieceInfo
 			pieces = append(pieces, pi)
 			log.Infof("Complete AP, sector (%d)", sector)
@@ -106,8 +104,6 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 			if err != nil {
 				log.Errorf("Sector (%d) , running PreCommit1  error: %v", sector, err)
 			}
-			fmt.Println("--------------------------------")
-			fmt.Println(pc1o)
 			log.Infof("Complete PreCommit1, sector (%d)", sector)
 
 			err = sealPreCommit2AndCheck(ctx, sb, sid, pc1o, Ss)
@@ -115,10 +111,10 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 				log.Errorf("Sector (%d) , running PreCommit2  error: %v", sector, err)
 			}
 			//
-			//err = MoveStorage(ctx, sid, tempDir, sealingResult)
-			//if err != nil {
-			//	log.Errorf("Sector (%d) , running MoveStorage  error: %v", sector, err)
-			//}
+			err = MoveStorage(ctx, sid, tempDir, sealingResult)
+			if err != nil {
+				log.Errorf("Sector (%d) , running MoveStorage  error: %v", sector, err)
+			}
 
 			log.Infof("Complete sector (%d)", sector)
 		}(int64(sector))
@@ -139,8 +135,6 @@ func sealPreCommit2AndCheck(ctx context.Context, sb *ffiwrapper.Sealer, sid stor
 		pc2Lock.Unlock()
 		return err
 	}
-	fmt.Println("---------------------------")
-	fmt.Println(cids)
 	pc2Lock.Unlock()
 	log.Infof("Complete PreCommit2, sector (%d)", sid.ID)
 

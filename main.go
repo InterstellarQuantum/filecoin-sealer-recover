@@ -49,12 +49,12 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:  "sealing-result",
-				Value: "~/sector",
+				Value: "/lotus_data/store",
 				Usage: "Recover sector result path",
 			},
 			&cli.StringFlag{
 				Name:  "sealing-temp",
-				Value: "~/temp",
+				Value: "/lotus_data/temp",
 				Usage: "Temporarily generated during sector recovery",
 			},
 			&cli.Int64Flag{
@@ -89,13 +89,6 @@ func main() {
 			if err != nil {
 				return xerrors.Errorf("Getting IDFromAddress err:", err)
 			}
-
-			//fullapi, closer, err := cliutil.GetFullNodeAPI(cctx)
-			//if err != nil {
-			//	return xerrors.Errorf("Getting FullNodeAPI err:", err)
-			//}
-			//defer closer()
-
 			if err = recovery.RecoverSealedFile(ctx, maddr, actorID, cctx.IntSlice("sector"), cctx.Uint("parallel"), cctx.String("sealing-result"), cctx.String("sealing-temp"), cctx.Int64("rsp"), cctx.Uint64("size")); err != nil {
 				return err
 			}
@@ -111,5 +104,4 @@ func main() {
 
 }
 
-// BuildVersion is the local build version
-const BuildVersion = "1.0.0"
+const BuildVersion = "1.1.0"
