@@ -88,7 +88,7 @@ func RecoverSealedFile(ctx context.Context, maddr address.Address, actorID uint6
 			}
 
 			var se = 1073741824 * size
-			log.Infof("Start recover sector(%d,%d), registeredSealProof: %d, ticket: %x", actorID, sector, abi.RegisteredSealProof(8), Rns)
+			log.Infof("Start recover sector(%d,%d), registeredSealProof: %d, ticket: %x", actorID, sector, abi.RegisteredSealProof(RegisteredSealProof), Rns)
 
 			log.Infof("Start running AP, sector (%d)", sector)
 			pi, err := sb.AddPiece(context.TODO(), sid, nil, abi.PaddedPieceSize(abi.SectorSize(se)).Unpadded(), sealing.NewNullReader(abi.UnpaddedPieceSize(abi.SectorSize(se))))
